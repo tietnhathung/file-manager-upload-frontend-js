@@ -1,20 +1,40 @@
 <template>
-  <div class="muf-root" style={modalStyle}>
+  <div class="muf-root">
     <div class="muf-modal">
-      <Header ></Header>
-      <Body ho="tieest" dem="nhat" ten="hung"></Body>
-      <Footer></Footer>
+      <Header :closeModel="closeModel"/>
+      <Body/>
+      <Footer/>
     </div>
-    <div class="muf-modal-backdrop"></div>
+    <div class="muf-modal-backdrop" @click="closeModel"></div>
   </div>
 </template>
 
 <script>
+import Header from "./Header.vue";
+import Body from "./Body.vue";
+import Footer from "./Footer.vue";
 export default {
-  name: "app"
+  name: "MediaManager",
+  setup(props) {
+    const rootModel = document.getElementById("root-media-upload");
+    const closeModel = ()=>{
+      rootModel.style.display = 'none';
+    }
+    return {
+      closeModel
+    }
+  },
+  props: {
+    emitEvent:Function
+  },
+  components:{
+    Header,
+    Body,
+    Footer
   }
-</script>
 
+}
+</script>
 <style scoped lang="css">
   .muf-modal{
     background:#ffffff;
