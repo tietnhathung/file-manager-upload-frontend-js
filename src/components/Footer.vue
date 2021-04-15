@@ -1,5 +1,5 @@
 <template>
-  <div className="muf-body">
+  <div class="muf-body">
   </div>
 </template>
 

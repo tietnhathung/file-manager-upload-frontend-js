@@ -1,4 +1,6 @@
-﻿const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+﻿const { VueLoaderPlugin } = require('vue-loader')
+const webpack = require('webpack');
+
 module.exports = {
     mode: 'production',
     entry: {
@@ -8,7 +10,6 @@ module.exports = {
         filename:  '[name].min.js',
         path: __dirname + '/dist'
     },
-    devtool: 'source-map',
     module: {
         rules: [
             {
@@ -22,13 +23,10 @@ module.exports = {
                 test: /\.s[ac]ss$/i,
                 use: [
                     {
-                        loader: MiniCssExtractPlugin.loader
+                        loader: 'css-loader'
                     },
                     {
-                        loader: "css-loader",
-                    },
-                    {
-                        loader: "postcss-loader"
+                        loader: 'vue-style-loader'
                     },
                     {
                         loader: "sass-loader",
@@ -37,12 +35,33 @@ module.exports = {
                         }
                     }
                 ]
+            },
+            {
+                test: /\.css$/i,
+                use: [
+                    {
+                        loader: 'vue-style-loader'
+                    },
+                    {
+                        loader: "css-loader",
+                    }
+                ]
+            },
+            {
+                test: /\.vue$/,
+                loader: 'vue-loader'
+            },
+            {
+                test: /\.(png|jpe?g|gif)$/i,
+                loader: 'file-loader'
             }
         ]
     },
     plugins: [
-        new MiniCssExtractPlugin({
-            filename:'[name].min.css',
+        new VueLoaderPlugin(),
+        new webpack.DefinePlugin({
+            __VUE_OPTIONS_API__: true,
+            __VUE_PROD_DEVTOOLS__: true
         }),
     ]
 };

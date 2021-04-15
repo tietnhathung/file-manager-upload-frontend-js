@@ -3,20 +3,42 @@
     <div class="media-toolbar">
       <div class="media-toolbar-secondary"></div>
       <div class="media-toolbar-primary search-form">
-        <button type="button" class="button media-button button-primary button-large media-button-select">Set featured image</button>
+        <button type="button" :disabled="isSelect" @click="select" class="button media-button button-primary button-large media-button-select">Set featured image</button>
       </div>
     </div>
   </div>
 </template>
 <script>
+import { mapGetters ,mapActions } from 'vuex';
 export default {
-name: "MediaFrameToolbar"
+  name: "MediaFrameToolbar",
+  props: {
+    emitEvent:Function,
+    closeModel:Function
+  },
+  computed:{
+    ...mapGetters(['StateListActiveFiles']),
+    isSelect(){
+      if ( typeof this.StateListActiveFiles === "undefined" ){
+        return true;
+      }
+      return Array.isArray(this.StateListActiveFiles) && this.StateListActiveFiles.length === 0;
+    }
+  },
+  methods:{
+    ...mapActions(['setDataUnActive']),
+    select(){
+      this.emitEvent("select",this.StateListActiveFiles);
+      this.setDataUnActive();
+      this.closeModel();
+    }
+  }
 }
 </script>
 <style scoped lang="css">
 .media-frame-toolbar {
   position: absolute;
-  left: 0px;
+  left: 0;
   right: 0;
   z-index: 100;
   bottom: 60px;
@@ -37,6 +59,7 @@ name: "MediaFrameToolbar"
 .media-toolbar-primary {
   float: right;
   height: 100%;
+  margin: 0;
   position: relative;
 }
 .media-frame-toolbar .button.button-large {
@@ -60,5 +83,10 @@ name: "MediaFrameToolbar"
   border-radius: 3px;
   white-space: nowrap;
   box-sizing: border-box;
+}
+.media-frame-toolbar .button[disabled] {
+  background: #69baff;
+  border-color: #5eb6ff;
+  color: #fff;
 }
 </style>

@@ -2,7 +2,7 @@
   <div class="muf-root">
     <div class="muf-modal">
       <Header :closeModel="closeModel"/>
-      <Body/>
+      <Body :emitEvent="emitEvent" :closeModel="closeModel"/>
       <Footer/>
     </div>
     <div class="muf-modal-backdrop" @click="closeModel"></div>

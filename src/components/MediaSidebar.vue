@@ -1,22 +1,6 @@
 <template>
   <div class="media-sidebar">
-    <div class="media-uploader-status" style="display: none;">
-      <h2>Uploading</h2>
-      <button type="button" class="button-link upload-dismiss-errors"><span
-          class="screen-reader-text">Dismiss Errors</span></button>
-      <div class="media-progress-bar">
-        <div></div>
-      </div>
-      <div class="upload-details">
-        <span class="upload-count">
-          <span class="upload-index"></span> / <span class="upload-total"></span>
-        </span>
-        <span class="upload-detail-separator">–</span>
-        <span class="upload-filename"></span>
-      </div>
-      <div class="upload-errors"></div>
-    </div>
-    <div class="attachment-details save-ready">
+    <div v-if="fileInfo && Object.keys(fileInfo).length > 0" class="attachment-details save-ready">
       <h2>
         Attachment Details <span class="settings-save-status" role="status">
 				<span class="spinner"></span>
@@ -25,21 +9,21 @@
       </h2>
       <div class="attachment-info">
         <div class="thumbnail thumbnail-image">
-          <img src="http://127.0.0.1:81/wp-content/uploads/2021/04/2021-03-08-6-300x169.png" draggable="false" alt="">
+          <img :src="fileInfo.thumbnail" draggable="false" alt="">
         </div>
         <div class="details">
-          <div class="filename">2021-03-08-6.png</div>
-          <div class="uploaded">April 3, 2021</div>
-          <div class="file-size">462 KB</div>
+          <div class="filename">{{fileInfo.name}}</div>
+          <div class="uploaded">{{new Date(fileInfo.createdAt).toLocaleString() }}</div>
+          <div class="file-size">{{fileInfo.size}}</div>
           <div class="dimensions"> 1920 by 1080 pixels</div>
-          <button type="button" class="button-link delete-attachment">Delete permanently</button>
+          <button type="button" class="button-link delete-attachment" @click="removeFile(fileInfo)">Delete permanently</button>
           <div class="compat-meta">
           </div>
         </div>
       </div>
       <span class="setting has-description" data-setting="alt">
 				<label for="attachment-details-alt-text" class="name">Alt Text</label>
-				<input type="text" id="attachment-details-alt-text" value="" aria-describedby="alt-text-description">
+				<input type="text" id="attachment-details-alt-text" readonly value="" aria-describedby="alt-text-description">
 			</span>
       <p class="description" id="alt-text-description">
         <a href="https://www.w3.org/WAI/tutorials/images/decision-tree" target="_blank" rel="noopener">Describe the purpose of the image
@@ -48,23 +32,25 @@
       </p>
       <span class="setting" data-setting="title">
 			<label for="attachment-details-title" class="name">Title</label>
-			<input type="text" id="attachment-details-title" value="2021-03-08">
+			<input type="text" id="attachment-details-title" readonly :value="fileInfo.name">
 		</span>
 
       <span class="setting" data-setting="caption">
 			<label for="attachment-details-caption" class="name">Caption</label>
-			<textarea id="attachment-details-caption"></textarea>
+			<textarea id="attachment-details-caption" readonly></textarea>
 		</span>
       <span class="setting" data-setting="description">
 			<label for="attachment-details-description" class="name">Description</label>
-			<textarea id="attachment-details-description"></textarea>
+			<textarea id="attachment-details-description" readonly></textarea>
 		</span>
       <span class="setting" data-setting="url">
 			<label for="attachment-details-copy-link" class="name">File URL:</label>
-			<input type="text" class="attachment-details-copy-link" id="attachment-details-copy-link" value="http://127.0.0.1:81/wp-content/uploads/2021/04/2021-03-08-6.png" readonly="">
+			<input type="text" class="attachment-details-copy-link" id="attachment-details-copy-link" :value="GetUrl" readonly="">
 			<div class="copy-to-clipboard-container">
-				<button type="button" class="button button-small copy-attachment-url" data-clipboard-target="#attachment-details-copy-link">Copy URL to clipboard</button>
-				<span class="success hidden" aria-hidden="true">Copied!</span>
+				<button type="button" class="button button-small copy-attachment-url" @click="CopyTextToClipboard">
+          Copy URL to clipboard
+        </button>
+				<span class="success" :class="{hidden:!isCopie}" aria-hidden="true">Copied!</span>
 			</div>
 		</span>
     </div>
@@ -73,8 +59,46 @@
 </template>
 
 <script>
+import {mapGetters,mapActions} from "vuex";
+
 export default {
-  name: "MediaSidebar"
+  name: "MediaSidebar",
+  data(){
+    return {
+      timeout: null,
+      isCopie: false
+    }
+  },
+  methods:{
+    ...mapActions(['removeFile']),
+    CopyTextToClipboard(){
+      var copyText = document.getElementById("attachment-details-copy-link");
+      copyText.select();
+      copyText.setSelectionRange(0, 99999)
+      document.execCommand("copy");
+      copyText.setSelectionRange(0, 0);
+      this.isCopie = true;
+      if (this.timeout != null){
+        clearTimeout(this.timeout);
+      }
+      this.timeout = setTimeout(()=>{
+          this.isCopie = false;
+          this.timeout = null;
+        },2000
+      );
+    }
+  },
+  computed:{
+    ...mapGetters({
+     fileInfo: 'StateActiveFile'
+    }),
+    GetUrl(){
+      let url = window.location.href
+      let arr = url.split("/");
+      let result = arr[0] + "//" + arr[2]
+      return result+ this.fileInfo.url
+    }
+  }
 }
 </script>
 
@@ -84,7 +108,7 @@ export default {
   top: 0;
   right: 0;
   bottom: 0;
-  width: 267px;
+  width: 300px;
   padding: 0 16px;
   z-index: 75;
   background: #f6f7f7;
@@ -116,6 +140,7 @@ export default {
 .attachment-info .thumbnail {
   position: relative;
   float: left;
+  padding: 0;
   max-width: 120px;
   max-height: 120px;
   margin-top: 5px;
@@ -187,7 +212,7 @@ export default {
   height: 62px;
   resize: vertical;
 }
-.attachment-details .setting input[readonly]{
+.attachment-details .setting input[readonly],.attachment-details .setting textarea[readonly]{
   background-color: #f0f0f1;
 }
 .attachment-details .copy-to-clipboard-container, .media-sidebar .copy-to-clipboard-container {

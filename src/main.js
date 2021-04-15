@@ -1,9 +1,12 @@
-﻿import { createApp  } from 'vue'
+﻿
+import { createApp } from 'vue'
+import { createStore } from 'vuex'
 import mediaManager from './components/MediaManager.vue'
-import store from "./store/store";
+import {state,getters,mutations,actions} from "./store/store";
 import 'es6-promise/auto'
 
 window.MediaManager = (function () {
+
     class MediaManager {
         constructor(dataSetup) {
             this.root = document.createElement("div");
@@ -25,6 +28,24 @@ window.MediaManager = (function () {
                 }
             }
             this.app = createApp(mediaManager , {emitEvent : this.emit });
+
+            let dataSetup = this.dataSetup
+
+            let store  = createStore({
+                state () {
+                    return state(dataSetup)
+                },
+                getters: {
+                    ...getters
+                },
+                mutations: {
+                   ...mutations
+                },
+                actions: {
+                    ...actions
+                }
+            })
+
             this.app.use(store);
             this.app.mount('#root-media-upload');
         }

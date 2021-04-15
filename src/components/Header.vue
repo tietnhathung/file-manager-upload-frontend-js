@@ -1,5 +1,5 @@
 <template>
-  <div className="muf-header">
+  <div class="muf-header">
     <h1>Featured image</h1>
     <button type="button" class="media-modal-close" @click="closeModel">
       <span class="media-modal-icon"></span>

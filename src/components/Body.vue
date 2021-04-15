@@ -1,16 +1,16 @@
 <template>
-  <div className="muf-body">
+  <div class="muf-body">
     <div class="muf-media-frame-router">
       <div role="tablist" aria-orientation="horizontal" class="muf-media-router">
-        <button type="button" role="tab" class="muf-media-menu-item" :data-active="tabActive==0 ? 'true': 'false'" id="menu-item-upload" @click="tabActive=0">Upload files</button>
-        <button type="button" role="tab" class="muf-media-menu-item" :data-active="tabActive==1 ? 'true': 'false'" id="menu-item-browse" @click="tabActive=1">Media Library</button>
+        <button type="button" role="tab" class="muf-media-menu-item" :data-active="tabActive===0 ? 'true': 'false'" id="menu-item-upload" @click="tabActive=0">Upload files</button>
+        <button type="button" role="tab" class="muf-media-menu-item" :data-active="tabActive===1 ? 'true': 'false'" id="menu-item-browse" @click="tabActive=1">Media Library</button>
       </div>
     </div>
     <div class="muf-media-frame-content">
       <AttachmentsUpload v-if="tabActive===0" />
       <AttachmentsBrowser v-else/>
     </div>
-    <MediaFrameToolbar/>
+    <MediaFrameToolbar :emitEvent="emitEvent" :closeModel="closeModel"/>
   </div>
 </template>
 
@@ -18,12 +18,23 @@
 import AttachmentsBrowser from "./AttachmentsBrowser.vue";
 import AttachmentsUpload from "./AttachmentsUpload.vue";
 import MediaFrameToolbar from "./MediaFrameToolbar.vue";
+import {mapActions} from "vuex";
 export default {
   name: "Body",
   data() {
     return {
-      tabActive: 1
+      tabActive: 0
     }
+  },
+  mounted() {
+    this.fetchFiles();
+  },
+  methods:{
+    ...mapActions(['fetchFiles'])
+  },
+  props: {
+    emitEvent:Function,
+    closeModel:Function
   },
   components:{
     AttachmentsBrowser,
@@ -37,7 +48,7 @@ export default {
   .muf-media-frame-router{
     position: absolute;
     top: 50px;
-    left: 0px;
+    left: 0;
     right: 0;
     height: 36px;
     z-index: 200;

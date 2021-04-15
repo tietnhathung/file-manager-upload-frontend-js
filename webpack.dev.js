@@ -2,7 +2,7 @@
 const webpack = require('webpack');
 
 module.exports = {
-    mode: 'development',
+    mode: 'development', //production
     entry: {
         filemanagerupload: ['./src/main.js']
     },
